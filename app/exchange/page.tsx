@@ -1,6 +1,18 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
+import { useUser } from "@clerk/nextjs"
+// Razorpay script loader
+const loadRazorpay = () => {
+  return new Promise((resolve) => {
+    if (document.getElementById("razorpay-script")) return resolve(true);
+    const script = document.createElement("script");
+    script.id = "razorpay-script";
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    document.body.appendChild(script);
+  });
+};
 import { motion } from "framer-motion"
 import {
   ChevronDown,
@@ -44,7 +56,8 @@ const Button = ({
   size = "default", 
   className = "", 
   onClick,
-  disabled = false
+  disabled = false,
+  type
 }: {
   children: React.ReactNode
   variant?: "default" | "outline" | "ghost" | "success"
@@ -52,6 +65,7 @@ const Button = ({
   className?: string
   onClick?: () => void
   disabled?: boolean
+  type?: "button" | "submit" | "reset"
 }) => {
   const baseStyles = "inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-lime-400 focus:ring-offset-2 focus:ring-offset-black disabled:opacity-50 disabled:cursor-not-allowed"
   
@@ -71,6 +85,7 @@ const Button = ({
     <button
       onClick={onClick}
       disabled={disabled}
+      type={type}
       className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
     >
       {children}
@@ -78,7 +93,43 @@ const Button = ({
   )
 }
 
-export default function ExchangePage() {  const [activeTab, setActiveTab] = useState<'buy' | 'sell'>('sell')
+export default function ExchangePage() {
+  const { user, isLoaded } = useUser();
+  const [activeTab, setActiveTab] = useState<'buy' | 'sell'>('sell')
+  // Buy modal state
+  const [showBuyModal, setShowBuyModal] = useState(false);
+  const [buyOrder, setBuyOrder] = useState<P2POrder | null>(null);
+  const [buyAmount, setBuyAmount] = useState("");
+  const [buyError, setBuyError] = useState("");
+  const [buyLoading, setBuyLoading] = useState(false);
+  const [buyMessage, setBuyMessage] = useState("");
+  const [buyerEmail, setBuyerEmail] = useState("");
+  const [buyerNumber, setBuyerNumber] = useState("");
+  // Always fetch email and phone from backend using Clerk ID
+  // Always fetch email and phone from backend using Clerk ID
+  useEffect(() => {
+    if (isLoaded && user) {
+      fetch(`/api/user-status?clerkId=${user.id}`)
+        .then(res => res.json())
+        .then(data => {
+          setBuyerEmail(data?.email || "");
+          setBuyerNumber(data?.phone || "");
+        });
+    }
+  }, [isLoaded, user]);
+
+  // When modal opens, always use the latest fetched values
+  useEffect(() => {
+    if (showBuyModal && !buyerEmail && isLoaded && user) {
+      fetch(`/api/user-status?clerkId=${user.id}`)
+        .then(res => res.json())
+        .then(data => {
+          setBuyerEmail(data?.email || "");
+          setBuyerNumber(data?.phone || "");
+        });
+    }
+  }, [showBuyModal, isLoaded, user]);
+  const buyInputRef = useRef<HTMLInputElement>(null);
   const [selectedCrypto, setSelectedCrypto] = useState('USDC')
   const [selectedCurrency, setSelectedCurrency] = useState('INR')
   const [transactionAmount, setTransactionAmount] = useState('')
@@ -416,10 +467,191 @@ export default function ExchangePage() {  const [activeTab, setActiveTab] = useS
                   <Button 
                     variant="success" 
                     className="w-full max-w-[120px]"
-                    onClick={() => console.log(`Trading with ${ad.trader.name}`)}
+                    onClick={() => {
+                      setBuyOrder(ad);
+                      setShowBuyModal(true);
+                      setBuyAmount("");
+                      setBuyError("");
+                      setBuyMessage("");
+                      setBuyerEmail("");
+                      setBuyerNumber("");
+                      setTimeout(() => buyInputRef.current?.focus(), 100);
+                    }}
                   >
-                    {activeTab === 'buy' ? `Buy ${selectedCrypto}` : `Sell ${selectedCrypto}`}
-                  </Button>                </div>
+                    {activeTab === 'buy' ? `Buy ${selectedCrypto}` : `Buy ${selectedCrypto}`}
+                  </Button>
+                </div>
+      {/* Buy Modal */}
+      {showBuyModal && buyOrder && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="bg-gray-900 rounded-xl border border-gray-800 w-full max-w-md max-h-[90vh] overflow-y-auto"
+          >
+            <div className="flex items-center justify-between p-6 border-b border-gray-800">
+              <h2 className="text-xl font-bold text-white">Buy {selectedCrypto}</h2>
+              <button
+                onClick={() => setShowBuyModal(false)}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            <form
+              className="p-6 space-y-4"
+              onSubmit={async (e) => {
+                e.preventDefault();
+                setBuyError("");
+                setBuyMessage("");
+                const available = Number((buyOrder.available || "0").toString().replace(/,/g, ""));
+                const amountNum = parseFloat(buyAmount);
+                const price = Number((buyOrder.price || "0").toString().replace(/[^\d.]/g, ""));
+                if (isNaN(amountNum) || amountNum <= 0) {
+                  setBuyError("Enter a valid amount greater than 0");
+                  return;
+                }
+                if (amountNum > available) {
+                  setBuyError(`Cannot buy more than seller's available (${buyOrder.available})`);
+                  return;
+                }
+                if (!buyerEmail || !buyerNumber) {
+                  setBuyError("Could not fetch your email or phone number. Please complete your profile.");
+                  return;
+                }
+                if (isNaN(price) || price <= 0) {
+                  setBuyError("Invalid price for this order. Please try another order.");
+                  return;
+                }
+                setBuyLoading(true);
+                try {
+                  // Calculate fiat amount (price * tokens), convert to paise
+                  const totalFiat = Math.round(price * amountNum * 100); // paise
+                  if (isNaN(totalFiat) || totalFiat < 500) {
+                    setBuyError(`Minimum payment is ₹5 (500 paise). Your total: ₹${isNaN(totalFiat) ? '0.00' : (totalFiat/100).toFixed(2)}`);
+                    setBuyLoading(false);
+                    return;
+                  }
+                  // 1. Create order
+                  const res = await fetch("/api/razorpay/order", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ amount: totalFiat, email: buyerEmail, number: buyerNumber }),
+                  });
+                  const data = await res.json();
+                  if (!res.ok) throw new Error(data.error || "Order creation failed");
+                  // 2. Load Razorpay script
+                  await loadRazorpay();
+                  // 3. Open Razorpay modal
+                  const options = {
+                    key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+                    amount: totalFiat,
+                    currency: "INR",
+                    name: "CryptoBazaar",
+                    description: `Buy ${amountNum} ${selectedCrypto}`,
+                    order_id: data.orderId,
+                    handler: async function (response: any) {
+                      // 4. Verify payment
+                      const verifyRes = await fetch("/api/razorpay/verify", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          orderCreationId: data.orderId,
+                          razorpayPaymentId: response.razorpay_payment_id,
+                          razorpaySignature: response.razorpay_signature,
+                          email: buyerEmail,
+                          number: buyerNumber,
+                          amount: totalFiat,
+                        }),
+                      });
+                      const verifyData = await verifyRes.json();
+                      setBuyMessage(verifyData.message || (verifyData.isOk ? "Payment Success" : "Payment Failed"));
+                    },
+                    prefill: {
+                      email: buyerEmail,
+                      contact: buyerNumber,
+                    },
+                    theme: { color: "#3399cc" },
+                  };
+                  // @ts-ignore
+                  const rzp = new window.Razorpay(options);
+                  rzp.open();
+                } catch (err: any) {
+                  setBuyError(err.message || "Something went wrong");
+                } finally {
+                  setBuyLoading(false);
+                }
+              }}
+            >
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Number of tokens to buy</label>
+                <input
+                  ref={buyInputRef}
+                  type="number"
+                  min={1}
+                  step="any"
+                  className="w-full border px-3 py-2 rounded bg-gray-800 border-gray-700 text-white"
+                  value={buyAmount}
+                  onChange={e => setBuyAmount(e.target.value)}
+                  required
+                />
+                <div className="text-xs text-gray-400 mt-1">Available: {buyOrder.available} {selectedCrypto}</div>
+                {/* Per token price and total price */}
+                <div className="mt-2 text-sm text-gray-300">
+                  <div>Per token price: <span className="font-semibold">{buyOrder.price}</span></div>
+                  <div>Total price: <span className="font-semibold">
+                    {(() => {
+                      const price = Number((buyOrder.price || "0").toString().replace(/[^\d.]/g, ""));
+                      const amountNum = parseFloat(buyAmount);
+                      if (!isNaN(price) && !isNaN(amountNum) && amountNum > 0) {
+                        return `₹${(price * amountNum).toFixed(2)}`;
+                      } else {
+                        return "₹0.00";
+                      }
+                    })()}
+                  </span></div>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Your Email</label>
+                <input
+                  type="email"
+                  className="w-full border px-3 py-2 rounded bg-gray-800 border-gray-700 text-white opacity-60"
+                  value={buyerEmail}
+                  disabled
+                  readOnly
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Your Phone Number</label>
+                <input
+                  type="tel"
+                  className="w-full border px-3 py-2 rounded bg-gray-800 border-gray-700 text-white opacity-60"
+                  value={buyerNumber}
+                  disabled
+                  readOnly
+                />
+              </div>
+              {buyError && <div className="text-red-400 text-sm">{buyError}</div>}
+              {buyMessage && <div className="text-green-400 text-sm">{buyMessage}</div>}
+              <Button
+                variant="success"
+                className="w-full"
+                type="submit"
+                disabled={buyLoading}
+              >
+                {buyLoading ? "Processing..." : "Pay Now"}
+              </Button>
+            </form>
+          </motion.div>
+        </motion.div>
+      )}
               </motion.div>
             ))
             )}

@@ -8,5 +8,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Missing clerkId' }, { status: 400 });
   }
   const user = await prisma.user.findUnique({ where: { clerkId } });
-  return NextResponse.json({ onboardingComplete: user?.onboardingComplete ?? false });
+  return NextResponse.json({
+    onboardingComplete: user?.onboardingComplete ?? false,
+    email: user?.email ?? null,
+    phone: user?.phone ?? null
+  });
 }
