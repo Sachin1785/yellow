@@ -1,0 +1,35 @@
+{
+  "contacts": [
+    {
+      "id": "cont_RLHoDPGFNaQW4R",
+      "entity": "contact",
+      "name": "Sachin",
+      "contact": "1234567890",
+      "email": "ninjae1017@gmail.com",
+      "type": "customer",
+      "reference_id": null,
+      "batch_id": null,
+      "active": true,
+      "notes": [],
+      "created_at": 1758683598
+    }
+  ],
+  "fundAccounts": [
+    {
+      "id": "fa_RLHoDxkDU6zAMh",
+      "entity": "fund_account",
+      "contact_id": "cont_RLHoDPGFNaQW4R",
+      "account_type": "bank_account",
+      "bank_account": {
+        "ifsc": "SBIN0000002",
+        "bank_name": "State Bank of India",
+        "name": "Sachin",
+        "notes": [],
+        "account_number": "9876543210"
+      },
+      "batch_id": null,
+      "active": true,
+      "created_at": 1758683599
+    }
+  ]
+}
