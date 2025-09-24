@@ -1,52 +1,77 @@
 "use client";
 import Link from "next/link";
 import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { motion } from "framer-motion";
+import { DollarSign } from "lucide-react";
 
 export default function Navbar() {
   return (
-    <nav
-      className="fixed top-0 left-1/2 z-50 -translate-x-1/2 w-[95vw] max-w-3xl bg-zinc-50/80 dark:bg-zinc-900/80 backdrop-blur-xl border border-zinc-200 dark:border-zinc-800 shadow-float rounded-2xl flex items-center justify-between px-8 py-3 mx-auto"
-      style={{
-        boxShadow: '0 8px 32px 0 rgba(0,0,0,0.12)',
-      }}
+    <motion.header
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="sticky top-0 z-40 w-full border-b border-gray-800 bg-black/95 backdrop-blur supports-[backdrop-filter]:bg-black/60"
     >
-      <Link
-        href="/"
-        className="text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100 select-none"
-        style={{ letterSpacing: '-0.04em' }}
-      >
-        CryptoBazaar
-      </Link>
-      <div className="flex items-center gap-2">
-        <SignedOut>
-          <SignInButton mode="modal">
-            <button
-              className="px-5 py-2 rounded-xl bg-zinc-900/90 dark:bg-zinc-100/90 text-zinc-100 dark:text-zinc-900 font-semibold shadow hover:bg-zinc-800/90 dark:hover:bg-zinc-200/90 transition-colors border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-400/40"
-            >
-              Sign In
-            </button>
-          </SignInButton>
-        </SignedOut>
-        <SignedIn>
-          <div className="flex items-center gap-2">
-            <Link
-              href="/profile"
-              className="px-4 py-2 rounded-lg text-zinc-700 dark:text-zinc-200 hover:bg-zinc-200/60 dark:hover:bg-zinc-800/60 transition-colors font-medium"
-            >
-              Profile
-            </Link>
-            <Link
-              href="/settings"
-              className="px-4 py-2 rounded-lg text-zinc-700 dark:text-zinc-200 hover:bg-zinc-200/60 dark:hover:bg-zinc-800/60 transition-colors font-medium"
-            >
-              Settings
-            </Link>
-            <div className="ml-2">
-              <UserButton afterSignOutUrl="/" />
+      <div className="container mx-auto flex h-16 items-center justify-between px-6">
+        <div className="flex items-center gap-3">
+          <motion.div
+            whileHover={{ rotate: 5, scale: 1.1 }}
+            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+            className="h-10 w-10 rounded-full bg-lime-400 flex items-center justify-center"
+          >
+            <DollarSign className="h-6 w-6 text-black" />
+          </motion.div>
+          <Link href="/" className="font-bold text-xl text-lime-400 select-none">
+            CryptoSwap
+          </Link>
+        </div>
+
+        <nav className="hidden md:flex gap-8">
+          <a href="#features" className="text-sm font-medium transition-colors hover:text-lime-400">
+            Features
+          </a>
+          <a href="#how-it-works" className="text-sm font-medium transition-colors hover:text-lime-400">
+            How It Works
+          </a>
+          <a href="#security" className="text-sm font-medium transition-colors hover:text-lime-400">
+            Security
+          </a>
+          <a href="#testimonials" className="text-sm font-medium transition-colors hover:text-lime-400">
+            Reviews
+          </a>
+        </nav>
+
+        <div className="flex items-center gap-2">
+          <SignedOut>
+            <SignInButton mode="modal">
+              <button
+                className="px-5 py-2 rounded-xl bg-lime-400 text-black font-semibold shadow hover:bg-lime-300 transition-colors border border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/40"
+              >
+                Sign In
+              </button>
+            </SignInButton>
+          </SignedOut>
+          <SignedIn>
+            <div className="flex items-center gap-2">
+              <Link
+                href="/profile"
+                className="px-4 py-2 rounded-lg text-lime-400 hover:bg-lime-400/10 transition-colors font-medium"
+              >
+                Profile
+              </Link>
+              <Link
+                href="/settings"
+                className="px-4 py-2 rounded-lg text-lime-400 hover:bg-lime-400/10 transition-colors font-medium"
+              >
+                Settings
+              </Link>
+              <div className="ml-2">
+                <UserButton afterSignOutUrl="/" />
+              </div>
             </div>
-          </div>
-        </SignedIn>
+          </SignedIn>
+        </div>
       </div>
-    </nav>
+    </motion.header>
   );
 }

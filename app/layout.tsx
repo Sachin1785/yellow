@@ -31,7 +31,7 @@ export default function RootLayout({
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}>
           <Navbar />
           {/* Add top padding to main so content starts below navbar (navbar height + margin) */}
-          <main className="flex-1 flex flex-col pt-24">
+          <main className="flex-1 flex flex-col">
             {children}
           </main>
           {/* <Footer /> */}
