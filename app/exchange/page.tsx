@@ -571,7 +571,34 @@ export default function ExchangePage() {
                         }),
                       });
                       const verifyData = await verifyRes.json();
-                      setBuyMessage(verifyData.message || (verifyData.isOk ? "Payment Success" : "Payment Failed"));
+                      if (verifyData.isOk) {
+                        // 5. Subtract tokens from availableAmount in backend
+                        if (!user) {
+                          setBuyError("User not found. Please login again.");
+                          return;
+                        }
+                        const buyRes = await fetch("/api/p2p/orders/buy", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            orderId: buyOrder.id,
+                            amount: amountNum,
+                            buyerId: user.id
+                          })
+                        });
+                        const buyData = await buyRes.json();
+                        if (buyData.success) {
+                          setBuyMessage("Purchase successful!");
+                          setShowBuyModal(false);
+                          setBuyOrder(null);
+                          setBuyAmount("");
+                          fetchOrders(); // Refresh orders to update available tokens
+                        } else {
+                          setBuyError(buyData.error || "Transaction failed");
+                        }
+                      } else {
+                        setBuyError(verifyData.message || "Payment verification failed");
+                      }
                     },
                     prefill: {
                       email: buyerEmail,
