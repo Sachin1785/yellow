@@ -7,14 +7,12 @@ export function Footer() {
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">CT</span>
+            <div className="flex items-center gap-2">              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                <span className="text-primary-foreground font-bold text-sm">CB</span>
               </div>
-              <span className="font-bold text-xl">CryptoTrade</span>
-            </div>
-            <p className="text-muted-foreground text-sm">
-              Professional cryptocurrency trading platform trusted by millions worldwide.
+              <span className="font-bold text-xl">CryptoBazaar</span>
+            </div>            <p className="text-muted-foreground text-sm">
+              Secure P2P cryptocurrency trading platform for USDT with UPI/GPay integration.
             </p>
             <div className="flex gap-4">
               <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary">
@@ -112,7 +110,7 @@ export function Footer() {
         </div>
 
         <div className="border-t border-border mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-muted-foreground text-sm">© 2024 CryptoTrade Pro. All rights reserved.</p>
+          <p className="text-muted-foreground text-sm">© 2024 CryptoBazaar Pro. All rights reserved.</p>
           <div className="flex gap-6 text-sm">
             <Button variant="ghost" className="h-auto p-0 text-muted-foreground hover:text-primary">
               Terms

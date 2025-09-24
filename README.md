@@ -1,4 +1,24 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CryptoBazaar - Secure P2P Crypto Trading Platform
+
+CryptoBazaar is a peer-to-peer cryptocurrency trading platform built with Next.js, focusing on USDT trading with UPI/GPay integration. The platform includes Razorpay payment integration and Clerk authentication for secure transactions.
+
+## Features
+
+- 🔒 **Escrow Protection** - Every trade secured by automated escrow system
+- ⚡ **Instant Settlements** - Complete trades in minutes with UPI/GPay
+- 👥 **Verified Users** - Comprehensive KYC verification process
+- 📈 **Best Rates** - Competitive exchange rates with real-time market data
+- 🌐 **24/7 Trading** - Round-the-clock availability with customer support
+- 💳 **Multiple Payment Options** - UPI, GPay, PhonePe support
+
+## Tech Stack
+
+- **Framework**: Next.js 14 with App Router
+- **Authentication**: Clerk
+- **Payments**: Razorpay integration
+- **Database**: Prisma ORM with Neon PostgreSQL
+- **Styling**: Tailwind CSS with Radix UI components
+- **Animations**: Framer Motion
 
 ## Getting Started
 

@@ -157,7 +157,7 @@ export default function HomePage() {
               <div className="h-10 w-10 rounded-full bg-lime-400 flex items-center justify-center">
                 <DollarSign className="h-6 w-6 text-black" />
               </div>
-              <span className="font-bold text-xl text-lime-400">CryptoSwap</span>
+              <span className="font-bold text-xl text-lime-400">CryptoBazaar</span>
             </div>
             <button onClick={toggleMenu}>
               <X className="h-6 w-6" />
@@ -170,10 +170,9 @@ export default function HomePage() {
             animate="visible"
             className="container mx-auto grid gap-4 px-6 pb-8 pt-6"
           >
-            {["Features", "How It Works", "Security", "Reviews"].map((item, index) => (
-              <motion.div key={index} variants={itemFadeIn}>
-                <a
-                  href={`#${item.toLowerCase().replace(" ", "-")}`}
+            {["Features", "How It Works", "P2P Trading", "Reviews"].map((item, index) => (
+              <motion.div key={index} variants={itemFadeIn}>                <a
+                  href={item === "P2P Trading" ? "/exchange" : `#${item.toLowerCase().replace(" ", "-")}`}
                   className="flex items-center justify-between rounded-lg px-4 py-3 text-lg font-medium hover:bg-gray-900"
                   onClick={toggleMenu}
                 >
@@ -240,10 +239,10 @@ export default function HomePage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.7, delay: 0.6 }}
                   className="flex flex-col gap-4 sm:flex-row"
-                >
-                  <Button 
+                >                  <Button 
                     size="lg" 
                     className="group"
+                    onClick={() => window.location.href = '/exchange'}
                   >
                     Start Trading Now
                     <motion.span
@@ -255,7 +254,7 @@ export default function HomePage() {
                     </motion.span>
                   </Button>
                   <Button variant="outline" size="lg">
-                    Learn More
+                    Connect Wallet
                   </Button>
                 </motion.div>
 
@@ -346,9 +345,11 @@ export default function HomePage() {
                         <span>Enabled</span>
                       </div>
                     </div>
-                  </div>
-
-                  <Button className="w-full" size="lg">
+                  </div>                  <Button 
+                    className="w-full" 
+                    size="lg"
+                    onClick={() => window.location.href = '/exchange'}
+                  >
                     Find Sellers
                   </Button>
                 </Card>
@@ -516,119 +517,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Security Section */}
-        <section id="security" className="py-20 md:py-32">
-          <div className="container mx-auto px-6">
-            <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center">
-              <motion.div
-                initial={{ opacity: 0, x: -50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6 }}
-                className="space-y-8"
-              >
-                <div className="inline-block rounded-full bg-lime-400/10 px-4 py-2 text-sm border border-lime-400/20">
-                  Bank-Grade Security
-                </div>
-                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
-                  Your Funds Are <span className="text-lime-400">Protected</span>
-                </h2>
-                <p className="text-xl text-gray-300 leading-relaxed">
-                  We use industry-leading security measures to protect your assets and personal information. Trade with complete peace of mind.
-                </p>
-
-                <div className="space-y-4">
-                  {[
-                    "256-bit SSL encryption for all transactions",
-                    "Multi-signature wallet security",
-                    "Real-time fraud detection system",
-                    "Cold storage for 95% of user funds",
-                    "24/7 security monitoring"
-                  ].map((feature, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, x: -20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.5, delay: index * 0.1 }}
-                      className="flex items-center gap-3"
-                    >
-                      <CheckCircle className="h-5 w-5 text-lime-400 flex-shrink-0" />
-                      <span className="text-gray-300">{feature}</span>
-                    </motion.div>
-                  ))}
-                </div>
-
-                <Button size="lg" variant="outline">
-                  Learn About Security
-                </Button>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, x: 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6 }}
-                className="relative"
-              >
-                <Card className="p-8 space-y-6">
-                  <div className="flex items-center gap-3 mb-6">
-                    <Shield className="h-8 w-8 text-lime-400" />
-                    <h3 className="text-xl font-semibold">Security Dashboard</h3>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="h-3 w-3 rounded-full bg-lime-400"></div>
-                        <span>Two-Factor Authentication</span>
-                      </div>
-                      <span className="text-lime-400 text-sm">Active</span>
-                    </div>
-
-                    <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="h-3 w-3 rounded-full bg-lime-400"></div>
-                        <span>Email Verification</span>
-                      </div>
-                      <span className="text-lime-400 text-sm">Verified</span>
-                    </div>
-
-                    <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="h-3 w-3 rounded-full bg-lime-400"></div>
-                        <span>KYC Status</span>
-                      </div>
-                      <span className="text-lime-400 text-sm">Completed</span>
-                    </div>
-
-                    <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="h-3 w-3 rounded-full bg-lime-400"></div>
-                        <span>Wallet Security</span>
-                      </div>
-                      <span className="text-lime-400 text-sm">Multi-Sig</span>
-                    </div>
-                  </div>
-
-                  <div className="pt-4 border-t border-gray-700">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-lime-400 mb-1">100%</div>
-                      <div className="text-sm text-gray-400">Security Score</div>
-                    </div>
-                  </div>
-                </Card>
-
-                {/* Floating Security Badge */}
-                <motion.div
-                  animate={{ rotate: [0, 5, -5, 0] }}
-                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute -top-4 -right-4 bg-lime-400 text-black px-4 py-2 rounded-full text-sm font-bold"
-                >
-                  Secured
-                </motion.div>
-              </motion.div>
-            </div>
-          </div>
-        </section>
-
         {/* Testimonials Section */}
         <section id="testimonials" className="py-20 md:py-32 bg-gray-900/20">
           <div className="container mx-auto px-6">
@@ -658,7 +546,7 @@ export default function HomePage() {
                 {
                   name: "Priya Sharma",
                   role: "Freelancer",
-                  content: "CryptoSwap made my first crypto purchase so easy! The escrow system gave me confidence, and UPI payment was instant.",
+                  content: "CryptoBazaar made my first crypto purchase so easy! The escrow system gave me confidence, and UPI payment was instant.",
                   rating: 5
                 },
                 {
@@ -737,7 +625,7 @@ export default function HomePage() {
                 Ready to Start <span className="text-lime-400">Trading?</span>
               </h2>
               <p className="mx-auto max-w-2xl text-xl text-gray-300">
-                Join thousands of users who trust CryptoSwap for secure, fast, and reliable crypto trading.
+                Join thousands of users who trust CryptoBazaar for secure, fast, and reliable crypto trading.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button 
@@ -765,7 +653,7 @@ export default function HomePage() {
                 <div className="h-8 w-8 rounded-full bg-lime-400 flex items-center justify-center">
                   <DollarSign className="h-5 w-5 text-black" />
                 </div>
-                <span className="font-bold text-lg text-lime-400">CryptoSwap</span>
+                <span className="font-bold text-lg text-lime-400">CryptoBazaar</span>
               </div>
               <p className="text-gray-400 text-sm">
                 The most trusted P2P crypto exchange platform in India. Trade USDT securely with escrow protection.
@@ -804,7 +692,7 @@ export default function HomePage() {
           </div>
 
           <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-400">
-            <p>&copy; {new Date().getFullYear()} CryptoSwap. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} CryptoBazaar. All rights reserved.</p>
           </div>
         </div>
       </footer>

@@ -42,3 +42,28 @@ model Razorpay {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
+
+model P2POrder {
+  id                String   @id @default(cuid())
+  userId            String   // References User.clerkId
+  type              String   // "BUY" or "SELL"
+  cryptocurrency    String   // "USDT" or "USDC"
+  fiatCurrency      String   @default("INR")
+  price             Decimal  @db.Decimal(10, 2) // Price per crypto unit in fiat
+  totalAmount       Decimal  @db.Decimal(15, 2) // Total crypto amount available
+  minLimit          Decimal  @db.Decimal(10, 2) // Minimum order limit in fiat
+  maxLimit          Decimal  @db.Decimal(15, 2) // Maximum order limit in fiat
+  availableAmount   Decimal  @db.Decimal(15, 2) // Remaining available amount
+  paymentMethods    String[] // Array of payment methods: ["UPI", "IMPS", "BANK_TRANSFER"]
+  timeLimit         Int      // Time limit in minutes
+  status            String   @default("ACTIVE") // "ACTIVE", "PAUSED", "COMPLETED", "CANCELLED"
+  completionRate    Decimal  @db.Decimal(5, 2) @default(0.00) // User's completion rate
+  totalOrders       Int      @default(0) // Total completed orders by user
+  verified          Boolean  @default(false) // User verification status
+  rating            Decimal  @db.Decimal(3, 2) @default(0.00) // User rating
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([cryptocurrency, type, status])
+  @@index([price])
+}

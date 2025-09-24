@@ -22,20 +22,18 @@ export default function Navbar() {
             <DollarSign className="h-6 w-6 text-black" />
           </motion.div>
           <Link href="/" className="font-bold text-xl text-lime-400 select-none">
-            CryptoSwap
+            CryptoBazaar
           </Link>
-        </div>
-
-        <nav className="hidden md:flex gap-8">
+        </div>        <nav className="hidden md:flex gap-8">
           <a href="#features" className="text-sm font-medium transition-colors hover:text-lime-400">
             Features
           </a>
           <a href="#how-it-works" className="text-sm font-medium transition-colors hover:text-lime-400">
             How It Works
           </a>
-          <a href="#security" className="text-sm font-medium transition-colors hover:text-lime-400">
-            Security
-          </a>
+          <Link href="/exchange" className="text-sm font-medium transition-colors hover:text-lime-400">
+            P2P Trading
+          </Link>
           <a href="#testimonials" className="text-sm font-medium transition-colors hover:text-lime-400">
             Reviews
           </a>
