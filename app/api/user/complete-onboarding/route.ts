@@ -120,6 +120,7 @@ export async function POST(request: NextRequest) {
         data: {
           contactId: contactObj.id,
           fundAccountId: fundAccountObj.id,
+          userId: user.id, // <-- add this line
         },
       });
     } catch (err) {

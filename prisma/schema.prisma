@@ -31,14 +31,17 @@ model User {
   privacyAccepted   Boolean  @default(false)
   marketingAccepted Boolean  @default(false)
   onboardingComplete Boolean @default(false)
+  razorpay          Razorpay?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 }
 
 model Razorpay {
-  id            Int    @id @default(autoincrement())
+  id            Int      @id @default(autoincrement())
   contactId     String
   fundAccountId String
+  userId        Int      @unique // Foreign key to User, must be unique for 1-1 relation
+  user          User     @relation(fields: [userId], references: [id])
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
