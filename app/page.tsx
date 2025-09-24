@@ -2,6 +2,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useInsertUserOnAuth } from "./hooks/useInsertUserOnAuth"
+import { useOnboardingStatus } from "./hooks/useOnboardingStatus"
+import { OnboardingPopup } from "./components/OnboardingPopup"
 import { motion } from "framer-motion"
 import {
   Menu,
@@ -115,6 +118,9 @@ const itemFadeIn = {
 export default function HomePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [scrollY, setScrollY] = useState(0)
+  const [showOnboarding, setShowOnboarding] = useState(true)
+  useInsertUserOnAuth();
+  const { onboardingComplete } = useOnboardingStatus();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -124,6 +130,11 @@ export default function HomePage() {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
+  useEffect(() => {
+    if (onboardingComplete === true) setShowOnboarding(false);
+    else if (onboardingComplete === false) setShowOnboarding(true);
+  }, [onboardingComplete]);
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
   }
@@ -131,6 +142,7 @@ export default function HomePage() {
   return (
 
     <div className="min-h-screen bg-black text-white">
+      <OnboardingPopup show={showOnboarding && onboardingComplete === false} onClose={() => setShowOnboarding(false)} />
 
       {/* Mobile Menu */}
       {isMenuOpen && (

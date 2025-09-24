@@ -1,0 +1,36 @@
+// Prisma schema for user onboarding with SQLite
+// Save this as schema.prisma in the /prisma directory
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                Int      @id @default(autoincrement())
+  clerkId           String   @unique
+  email             String   @unique
+  firstName         String
+  lastName          String
+  phone             String
+  addressLine1      String
+  addressLine2      String?
+  city              String
+  state             String
+  zipCode           String
+  dateOfBirth       DateTime
+  gender            String?
+  bankName          String
+  accountNumber     String
+  ifsc              String
+  termsAccepted     Boolean  @default(false)
+  privacyAccepted   Boolean  @default(false)
+  marketingAccepted Boolean  @default(false)
+  onboardingComplete Boolean @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}

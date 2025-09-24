@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useUser } from "@clerk/nextjs"
 import { Button } from "../components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card"
 import { Input } from "../components/ui/input"
@@ -12,25 +13,24 @@ import { ArrowLeft, ArrowRight, Check, User, MapPin, CreditCard, FileText } from
 
 interface FormData {
   // Step 1: Basic Info
-  name: string
+  firstName: string
+  lastName: string
   email: string
-  password: string
-  confirmPassword: string
+  phone: string
 
   // Step 2: Personal Details
-  address: string
+  addressLine1: string
+  addressLine2: string
   city: string
   state: string
   zipCode: string
-  phone: string
-  age: string
+  dateOfBirth: string
   gender: string
 
   // Step 3: Bank Details
   bankName: string
   accountNumber: string
-  routingNumber: string
-  accountType: string
+  ifsc: string
 
   // Step 4: Agreement
   termsAccepted: boolean
@@ -46,24 +46,24 @@ const steps = [
 ]
 
 export default function SignupPage() {
+  const { user } = useUser();
   const [currentStep, setCurrentStep] = useState(1)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [formData, setFormData] = useState<FormData>({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
-    password: "",
-    confirmPassword: "",
-    address: "",
+    phone: "",
+    addressLine1: "",
+    addressLine2: "",
     city: "",
     state: "",
     zipCode: "",
-    phone: "",
-    age: "",
+    dateOfBirth: "",
     gender: "",
     bankName: "",
     accountNumber: "",
-    routingNumber: "",
-    accountType: "",
+    ifsc: "",
     termsAccepted: false,
     privacyAccepted: false,
     marketingAccepted: false,
@@ -76,11 +76,17 @@ export default function SignupPage() {
   const validateStep = (step: number): boolean => {
     switch (step) {
       case 1:
-        return !!(formData.name && formData.email && formData.password && formData.confirmPassword)
+        return !!(formData.firstName && formData.lastName && formData.email && formData.phone)
       case 2:
-        return !!(formData.address && formData.city && formData.state && formData.zipCode && formData.phone)
+        return !!(
+          formData.addressLine1 &&
+          formData.city &&
+          formData.state &&
+          formData.zipCode &&
+          formData.dateOfBirth
+        )
       case 3:
-        return !!(formData.bankName && formData.accountNumber && formData.routingNumber && formData.accountType)
+        return !!(formData.bankName && formData.accountNumber && formData.ifsc)
       case 4:
         return formData.termsAccepted && formData.privacyAccepted
       default:
@@ -110,8 +116,23 @@ export default function SignupPage() {
 
   const handleSubmit = () => {
     if (validateStep(4)) {
-      console.log("Form submitted:", formData)
-      // Handle form submission here
+      const clerkId = user?.id;
+      if (!clerkId) {
+        alert("User not authenticated");
+        return;
+      }
+      fetch("/api/user/complete-onboarding", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...formData, clerkId }),
+      })
+        .then(async (res) => {
+          if (!res.ok) throw new Error("Failed to complete onboarding");
+          window.location.href = "/";
+        })
+        .catch((err) => {
+          alert("Error: " + err.message);
+        });
     }
   }
 
@@ -179,18 +200,33 @@ export default function SignupPage() {
                 <div className="space-y-4 animate-in slide-in-from-right duration-300">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="name" className="text-foreground">
-                        Full Name <span className="text-red-500">*</span>
+                      <Label htmlFor="firstName" className="text-foreground">
+                        First Name <span className="text-red-500">*</span>
                       </Label>
                       <Input
-                        id="name"
-                        placeholder="Enter your full name"
-                        value={formData.name}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFormData("name", e.target.value)}
+                        id="firstName"
+                        placeholder="Enter your first name"
+                        value={formData.firstName}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFormData("firstName", e.target.value)}
                         className="bg-input border-border text-foreground transition-all duration-200 focus:scale-[1.02] focus:shadow-lg"
                         required
                       />
                     </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="lastName" className="text-foreground">
+                        Last Name <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id="lastName"
+                        placeholder="Enter your last name"
+                        value={formData.lastName}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFormData("lastName", e.target.value)}
+                        className="bg-input border-border text-foreground transition-all duration-200 focus:scale-[1.02] focus:shadow-lg"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="email" className="text-foreground">
                         Email Address <span className="text-red-500">*</span>
@@ -205,32 +241,15 @@ export default function SignupPage() {
                         required
                       />
                     </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="password" className="text-foreground">
-                        Password <span className="text-red-500">*</span>
+                      <Label htmlFor="phone" className="text-foreground">
+                        Phone Number <span className="text-red-500">*</span>
                       </Label>
                       <Input
-                        id="password"
-                        type="password"
-                        placeholder="Create a password"
-                        value={formData.password}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFormData("password", e.target.value)}
-                        className="bg-input border-border text-foreground transition-all duration-200 focus:scale-[1.02] focus:shadow-lg"
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="confirmPassword" className="text-foreground">
-                        Confirm Password <span className="text-red-500">*</span>
-                      </Label>
-                      <Input
-                        id="confirmPassword"
-                        type="password"
-                        placeholder="Confirm your password"
-                        value={formData.confirmPassword}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFormData("confirmPassword", e.target.value)}
+                        id="phone"
+                        placeholder="(555) 123-4567"
+                        value={formData.phone}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFormData("phone", e.target.value)}
                         className="bg-input border-border text-foreground transition-all duration-200 focus:scale-[1.02] focus:shadow-lg"
                         required
                       />
@@ -242,18 +261,32 @@ export default function SignupPage() {
               {/* Step 2: Personal Details */}
               {currentStep === 2 && (
                 <div className="space-y-4 animate-in slide-in-from-right duration-300">
-                  <div className="space-y-2">
-                    <Label htmlFor="address" className="text-foreground">
-                      Street Address <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      id="address"
-                      placeholder="Enter your street address"
-                      value={formData.address}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFormData("address", e.target.value)}
-                      className="bg-input border-border text-foreground transition-all duration-200 focus:scale-[1.02] focus:shadow-lg"
-                      required
-                    />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="addressLine1" className="text-foreground">
+                        Address Line 1 <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id="addressLine1"
+                        placeholder="Flat, House no., Building, Company, Apartment"
+                        value={formData.addressLine1}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFormData("addressLine1", e.target.value)}
+                        className="bg-input border-border text-foreground transition-all duration-200 focus:scale-[1.02] focus:shadow-lg"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="addressLine2" className="text-foreground">
+                        Address Line 2
+                      </Label>
+                      <Input
+                        id="addressLine2"
+                        placeholder="Area, Street, Sector, Village"
+                        value={formData.addressLine2}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFormData("addressLine2", e.target.value)}
+                        className="bg-input border-border text-foreground transition-all duration-200 focus:scale-[1.02] focus:shadow-lg"
+                      />
+                    </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-2">
@@ -298,29 +331,17 @@ export default function SignupPage() {
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="phone" className="text-foreground">
-                        Phone Number <span className="text-red-500">*</span>
+                      <Label htmlFor="dateOfBirth" className="text-foreground">
+                        Date of Birth <span className="text-red-500">*</span>
                       </Label>
                       <Input
-                        id="phone"
-                        placeholder="(555) 123-4567"
-                        value={formData.phone}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFormData("phone", e.target.value)}
+                        id="dateOfBirth"
+                        type="date"
+                        placeholder="Date of Birth"
+                        value={formData.dateOfBirth}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFormData("dateOfBirth", e.target.value)}
                         className="bg-input border-border text-foreground transition-all duration-200 focus:scale-[1.02] focus:shadow-lg"
                         required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="age" className="text-foreground">
-                        Age
-                      </Label>
-                      <Input
-                        id="age"
-                        type="number"
-                        placeholder="Age"
-                        value={formData.age}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFormData("age", e.target.value)}
-                        className="bg-input border-border text-foreground transition-all duration-200 focus:scale-[1.02] focus:shadow-lg"
                       />
                     </div>
                     <div className="space-y-2">
@@ -374,36 +395,18 @@ export default function SignupPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="routingNumber" className="text-foreground">
-                        Routing Number <span className="text-red-500">*</span>
+                      <Label htmlFor="ifsc" className="text-foreground">
+                        IFSC Code <span className="text-red-500">*</span>
                       </Label>
                       <Input
-                        id="routingNumber"
-                        placeholder="Enter routing number"
-                        value={formData.routingNumber}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFormData("routingNumber", e.target.value)}
+                        id="ifsc"
+                        placeholder="Enter IFSC code"
+                        value={formData.ifsc}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFormData("ifsc", e.target.value)}
                         className="bg-input border-border text-foreground transition-all duration-200 focus:scale-[1.02] focus:shadow-lg"
                         required
                       />
                     </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="accountType" className="text-foreground">
-                      Account Type <span className="text-red-500">*</span>
-                    </Label>
-                    <Select
-                      value={formData.accountType}
-                      onValueChange={(value: string) => updateFormData("accountType", value)}
-                    >
-                      <SelectTrigger className="bg-input border-border text-foreground transition-all duration-200 hover:scale-[1.02]">
-                        <SelectValue placeholder="Select account type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="checking">Checking</SelectItem>
-                        <SelectItem value="savings">Savings</SelectItem>
-                        <SelectItem value="business">Business</SelectItem>
-                      </SelectContent>
-                    </Select>
                   </div>
                   <div className="bg-muted p-4 rounded-lg animate-in fade-in duration-500 delay-200">
                     <p className="text-sm text-muted-foreground">
@@ -521,15 +524,6 @@ export default function SignupPage() {
           </CardContent>
         </Card>
 
-        {/* Footer */}
-        <div className="text-center mt-8 animate-in fade-in duration-500 delay-300">
-          <p className="text-sm text-muted-foreground">
-            Already have an account?{" "}
-            <span className="text-primary underline cursor-pointer hover:text-primary/80 transition-colors duration-200">
-              Sign in here
-            </span>
-          </p>
-        </div>
       </div>
     </div>
   )
