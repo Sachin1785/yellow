@@ -56,10 +56,14 @@ export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
     console.log('Received onboarding data:', data);
-    const { clerkId, dateOfBirth, firstName, lastName, phone, email, bankName, accountNumber, ifsc, ...rest } = data;
+    const { clerkId, dateOfBirth, firstName, lastName, phone, email, bankName, accountNumber, ifsc, walletAddress, ...rest } = data;
     if (!clerkId) {
       console.log('Missing clerkId');
       return NextResponse.json({ error: 'Missing clerkId' }, { status: 400 });
+    }
+    if (!walletAddress) {
+      console.log('Missing walletAddress');
+      return NextResponse.json({ error: 'Missing walletAddress' }, { status: 400 });
     }
     // Format dateOfBirth properly as DateTime
     const formattedDateOfBirth = dateOfBirth ? new Date(`${dateOfBirth}T00:00:00Z`) : undefined;
@@ -105,6 +109,7 @@ export async function POST(request: NextRequest) {
           bankName,
           accountNumber,
           ifsc,
+          walletAddress,
           dateOfBirth: formattedDateOfBirth,
           onboardingComplete: true,
         },

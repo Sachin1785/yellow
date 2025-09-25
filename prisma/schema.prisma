@@ -27,6 +27,7 @@ model User {
   bankName          String
   accountNumber     String
   ifsc              String
+  walletAddress     String?  @unique // MetaMask wallet address (optional for migration)
   termsAccepted     Boolean  @default(false)
   privacyAccepted   Boolean  @default(false)
   marketingAccepted Boolean  @default(false)

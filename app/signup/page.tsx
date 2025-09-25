@@ -2,6 +2,15 @@
 
 import { useState } from "react"
 import { useUser } from "@clerk/nextjs"
+
+// Add type declaration for window.ethereum
+declare global {
+  interface Window {
+    ethereum?: {
+      request: (args: { method: string }) => Promise<any>;
+    };
+  }
+}
 import { Button } from "../components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card"
 import { Input } from "../components/ui/input"
@@ -36,6 +45,9 @@ interface FormData {
   termsAccepted: boolean
   privacyAccepted: boolean
   marketingAccepted: boolean
+
+  // MetaMask Wallet
+  walletAddress: string
 }
 
 const steps = [
@@ -67,7 +79,28 @@ export default function SignupPage() {
     termsAccepted: false,
     privacyAccepted: false,
     marketingAccepted: false,
+    walletAddress: "",
   })
+
+  // MetaMask connect logic
+  const [walletError, setWalletError] = useState<string>("");
+  const connectWallet = async () => {
+    setWalletError("");
+    if (typeof window.ethereum === "undefined") {
+      setWalletError("MetaMask is not installed. Please install MetaMask and try again.");
+      return;
+    }
+    try {
+      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+      if (accounts && accounts[0]) {
+        updateFormData("walletAddress", accounts[0]);
+      } else {
+        setWalletError("No wallet address found.");
+      }
+    } catch (err: any) {
+      setWalletError(err.message || "Failed to connect wallet.");
+    }
+  };
 
   const updateFormData = (field: keyof FormData, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -88,7 +121,7 @@ export default function SignupPage() {
       case 3:
         return !!(formData.bankName && formData.accountNumber && formData.ifsc)
       case 4:
-        return formData.termsAccepted && formData.privacyAccepted
+        return formData.termsAccepted && formData.privacyAccepted && !!formData.walletAddress
       default:
         return true
     }
@@ -429,7 +462,7 @@ export default function SignupPage() {
                       </p>
                       <p>
                         <strong className="text-foreground">Data Collection:</strong> We collect personal information to
-                        provide and improve our services. This includes your name, email, address, and banking
+                        provide and improve our services. This includes your name, email, address, banking, and wallet
                         information for account verification and transactions.
                       </p>
                       <p>
@@ -438,7 +471,7 @@ export default function SignupPage() {
                       </p>
                       <p>
                         <strong className="text-foreground">Data Protection:</strong> We implement industry-standard
-                        security measures to protect your personal and financial information.
+                        security measures to protect your personal, financial, and wallet information.
                       </p>
                       <p>
                         <strong className="text-foreground">Third Parties:</strong> We do not sell your personal
@@ -446,6 +479,27 @@ export default function SignupPage() {
                         delivery only.
                       </p>
                     </div>
+                  </div>
+
+                  {/* MetaMask Wallet Connect */}
+                  <div className="space-y-2">
+                    <Label htmlFor="walletAddress" className="text-foreground">
+                      MetaMask Wallet Address <span className="text-red-500">*</span>
+                    </Label>
+                    <div className="flex gap-2 items-center">
+                      <Input
+                        id="walletAddress"
+                        placeholder="Connect your MetaMask wallet"
+                        value={formData.walletAddress}
+                        readOnly
+                        className="bg-input border-border text-foreground transition-all duration-200 focus:scale-[1.02] focus:shadow-lg"
+                        required
+                      />
+                      <Button type="button" onClick={connectWallet} className="bg-primary text-primary-foreground">
+                        {formData.walletAddress ? "Connected" : "Connect Wallet"}
+                      </Button>
+                    </div>
+                    {walletError && <p className="text-red-500 text-sm mt-1">{walletError}</p>}
                   </div>
 
                   <div className="space-y-4">
