@@ -1,7 +1,7 @@
 
 import Razorpay from 'razorpay';
 import { NextRequest, NextResponse } from 'next/server';
-import { writeOrder } from './orders-util';
+// import { writeOrder } from './orders-util';
 
 const razorpay = new Razorpay({
     key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!,
@@ -33,18 +33,7 @@ export async function POST(request: NextRequest) {
         const order = await razorpay.orders.create(options);
         console.log('Order created:', order);
 
-        // Log order creation in JSON file
-        await writeOrder({
-            email,
-            number,
-            razorpayOrderId: order.id,
-            amount: amount / 100, // Convert from paise to rupees
-            currency: currency,
-            type: 'ORDER_CREATED',
-            status: 'PENDING',
-            description: `Order created: ${order.id} - Receipt: ${options.receipt}`,
-            createdAt: new Date().toISOString(),
-        });
+        // No need to store order in orders.json anymore
 
         return NextResponse.json({
             orderId: order.id,
