@@ -589,6 +589,12 @@ export default function ExchangePage() {
                         const buyData = await buyRes.json();
                         if (buyData.success) {
                           setBuyMessage("Purchase successful!");
+                          // Show USDC transfer details if available
+                          if (buyData.usdcTransfer?.txHash) {
+                            setBuyMessage(
+                              `Purchase successful! USDC transferred. Tx Hash: ${buyData.usdcTransfer.txHash}`
+                            );
+                          }
                           setShowBuyModal(false);
                           setBuyOrder(null);
                           setBuyAmount("");
