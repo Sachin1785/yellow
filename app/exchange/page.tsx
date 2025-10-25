@@ -247,7 +247,7 @@ export default function ExchangePage() {
                   : 'text-gray-400 hover:text-white'
               }`}
             >
-              Buy
+              Sell
             </button>
             <button
               onClick={() => setActiveTab('sell')}
@@ -257,7 +257,7 @@ export default function ExchangePage() {
                   : 'text-gray-400 hover:text-white'
               }`}
             >
-              Sell
+              Buy
             </button>
           </div>
 
@@ -276,13 +276,23 @@ export default function ExchangePage() {
               </button>
               <button
                 onClick={() => setSelectedCrypto('USDT')}
-                className={`flex-1 px-4 py-3 text-sm font-medium rounded-r-lg transition-all ${
+                className={`flex-1 px-4 py-3 text-sm font-medium transition-all ${
                   selectedCrypto === 'USDT' 
                     ? 'bg-lime-400 text-black' 
                     : 'text-gray-300 hover:bg-gray-700'
                 }`}
               >
                 USDT
+              </button>
+              <button
+                onClick={() => setSelectedCrypto('MON')}
+                className={`flex-1 px-4 py-3 text-sm font-medium rounded-r-lg transition-all ${
+                  selectedCrypto === 'MON' 
+                    ? 'bg-lime-400 text-black' 
+                    : 'text-gray-300 hover:bg-gray-700'
+                }`}
+              >
+                MON
               </button>
             </div>
 
@@ -340,7 +350,7 @@ export default function ExchangePage() {
                 className="px-3 py-1.5 bg-gray-800 border border-gray-700 rounded text-white text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-lime-400"
               >
                 <option value="Price">Price</option>
-                <option value="Completion Rate">Completion Rate</option>
+                {/* <option value="Completion Rate">Completion Rate</option> */}
                 <option value="Amount">Amount</option>
               </select>
               <ChevronDown className="h-4 w-4 text-gray-400" />
@@ -406,12 +416,12 @@ export default function ExchangePage() {
                           <Shield className="h-4 w-4 text-lime-400" />
                         )}
                       </div>
-                      <div className="text-xs text-gray-400">
+                      {/* <div className="text-xs text-gray-400">
                         {ad.trader.orders} orders • {ad.trader.completion} completion
-                      </div>
+                      </div> */}
                     </div>
                   </div>
-                  <div className="flex items-center gap-1">
+                  {/* <div className="flex items-center gap-1">
                     <div className="flex">
                       {[...Array(5)].map((_, i) => (
                         <Star 
@@ -425,16 +435,16 @@ export default function ExchangePage() {
                       ))}
                     </div>
                     <span className="text-xs text-gray-400">{ad.trader.rating}</span>
-                  </div>
+                  </div> */}
                   <div className="flex items-center gap-2 text-xs text-gray-400">
                     <div className="flex items-center gap-1">
                       <div className="w-2 h-2 bg-lime-400 rounded-full"></div>
                       <span>100%</span>
                     </div>
-                    <div className="flex items-center gap-1">
+                    {/* <div className="flex items-center gap-1">
                       <Clock className="h-3 w-3" />
                       <span>{ad.timeLimit}</span>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 
@@ -589,10 +599,10 @@ export default function ExchangePage() {
                         const buyData = await buyRes.json();
                         if (buyData.success) {
                           setBuyMessage("Purchase successful!");
-                          // Show USDC transfer details if available
-                          if (buyData.usdcTransfer?.txHash) {
+                          // Show transfer details if available
+                          if (buyData.transfer?.txHash) {
                             setBuyMessage(
-                              `Purchase successful! USDC transferred. Tx Hash: ${buyData.usdcTransfer.txHash}`
+                              `Purchase successful! ${buyData.transfer.type} transferred. Tx Hash: ${buyData.transfer.txHash}`
                             );
                           }
                           setShowBuyModal(false);
@@ -746,6 +756,16 @@ export default function ExchangePage() {
                       }`}
                     >
                       USDT
+                    </button>
+                    <button
+                      onClick={() => setCreateAdForm({...createAdForm, cryptocurrency: 'MON'})}
+                      className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all ${
+                        createAdForm.cryptocurrency === 'MON' 
+                          ? 'bg-lime-400 text-black' 
+                          : 'text-gray-300 hover:bg-gray-700'
+                      }`}
+                    >
+                      MON
                     </button>
                   </div>
                 </div>

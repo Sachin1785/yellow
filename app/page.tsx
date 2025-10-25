@@ -218,7 +218,7 @@ export default function HomePage() {
                   transition={{ duration: 0.7, delay: 0.2 }}
                   className="text-4xl font-bold tracking-tight sm:text-5xl xl:text-6xl"
                 >
-                  Trade USDT{" "}
+                  Trade Crypto{" "}
                   <span className="bg-gradient-to-r from-lime-400 to-green-400 bg-clip-text text-transparent">
                     Directly
                   </span>{" "}
@@ -231,7 +231,7 @@ export default function HomePage() {
                   transition={{ duration: 0.7, delay: 0.4 }}
                   className="max-w-2xl text-xl text-gray-300 leading-relaxed"
                 >
-                  Buy and sell USDT peer-to-peer with UPI/GPay payments. Every trade is protected by our secure escrow system for complete peace of mind.
+                  Buy and sell USDT, USDC, and MON peer-to-peer with UPI/GPay payments. Every trade is protected by our secure escrow system for complete peace of mind.
                 </motion.p>
 
                 <motion.div

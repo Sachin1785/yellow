@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 // Load environment variables
 const INFURA_API_KEY = process.env.INFURA_API_KEY;
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
-const USDC_CONTRACT_ADDRESS = "0x8B0180f2101c8260d49339abfEe87927412494B4"; // USDC on Polygon Amoy
+const USDC_CONTRACT_ADDRESS = " "; // USDC on Polygon Amoy
 const ERC20_ABI = [
   "function transfer(address to, uint256 amount) returns (bool)",
   "function balanceOf(address owner) view returns (uint256)",

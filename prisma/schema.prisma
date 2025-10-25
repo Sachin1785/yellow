@@ -51,7 +51,7 @@ model P2POrder {
   id                String   @id @default(cuid())
   userId            String   // References User.clerkId
   type              String   // "BUY" or "SELL"
-  cryptocurrency    String   // "USDT" or "USDC"
+  cryptocurrency    String   // "USDT", "USDC", or "MON"
   fiatCurrency      String   @default("INR")
   price             Decimal  @db.Decimal(10, 2) // Price per crypto unit in fiat
   totalAmount       Decimal  @db.Decimal(15, 2) // Total crypto amount available

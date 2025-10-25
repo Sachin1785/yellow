@@ -9,7 +9,8 @@ contract Payment {
         require(msg.value > 0, "Amount must be greater than zero");
         require(receiver != address(0), "Invalid receiver address");
 
-        receiver.transfer(msg.value);
-        emit PaymentSent(msg.sender, receiver, msg.value);
+    (bool sent, ) = receiver.call{value: msg.value}("");
+    require(sent, "Failed to send MON");
+    emit PaymentSent(msg.sender, receiver, msg.value);
     }
 }
